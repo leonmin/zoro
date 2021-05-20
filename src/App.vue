@@ -1,68 +1,65 @@
 <template>
   <div id="app">
-    <input type="file" @change="handleChange">
-    <span @click="handlePage(-1)">left</span>
-    <span>{{page}}/{{pages.length}}</span>
-    <span @click="handlePage(1)">right</span>
-    <ppt-wrap>
-      <ppt-view :page="page">
-        <ppt-page v-for="(page, idx) in pages" :key="idx" v-html="page" v-highlight></ppt-page>
-      </ppt-view>
-    </ppt-wrap>
+    <row>
+      <stack>
+        <logo :src="logo" />
+        <positioned :w="135" :h="35" :l="0" :t="0">
+          <file @change="handleChange" />
+        </positioned>
+      </stack>
+    </row>
+    <sizebox :h="12" />
+    <row>
+      <ppt ref="ppt" />
+      <lab />
+    </row>
   </div>
 </template>
 
 <script>
-import { pptWrap, pptView, pptPage} from '@/components/global/index'
-import MarkdownIt from 'markdown-it'
-import { indent } from 'indent.js'
-const markdown = new MarkdownIt()
+import logo from './static/logo.png'
+import marked from 'marked'
+import ppt from '@/views/ppt'
+import lab from '@/views/lab'
 export default {
   components: {
-    pptWrap,
-    pptView,
-    pptPage,
+    ppt,
+    lab,
   },
   data() {
     return {
+      logo,
       page: 0,
       pages: []
     }
   },
-  mounted() {
-    this.page = parseInt(localStorage.getItem('page') || 0)
-    this.pages = JSON.parse(localStorage.getItem('ppt') ||[])
-  },
   methods: {
     handleChange(e) {
       const file = e.target.files[0]
+      console.log('change', file)
+
       if (file) {
+        localStorage.setItem('pptName', file.name)
         const reader = new FileReader()
         reader.readAsArrayBuffer(file)
         reader.onload = (ev) => {
           const buffer = Buffer.from(ev.target.result)
           const mdstr = buffer.toString()
-          // console.log('mdstr', mdstr.split('// ppt'))
-          const x = markdown.render(mdstr, {
-            breaks: true
+          
+          const md = marked(mdstr, {
+            render: new marked.Renderer()
           })
-          const pages = x.split('<p>// ppt</p>')
-          this.pages = Array.from(pages, x => indent.html(x, {
-            tabString: '  '
-          }))
-          localStorage.setItem('ppt', JSON.stringify(this.pages))
-          console.log('x', this.pages)
-          // const mdstr = parseBuffer(ev.target.result)
-          // if (mdstr) {
-          //   this.pages = mdstr.split('// ppt')
-          //   localStorage.setItem('ppt', JSON.stringify(this.pages))
-          // }
+          this.pages = md.split('<p>// ppt</p>')
+          localStorage.setItem('pptPages', JSON.stringify(this.pages))
+          localStorage.setItem('pptPage', 0)
+          this.$refs.ppt.handleDraw()
+
         }
       }
     },
     handlePage(page) {
       this.page += page
-      localStorage.setItem('page', this.page)
+      localStorage.setItem('pptPage', this.page)
     }
   }
 }
