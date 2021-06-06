@@ -1,5 +1,5 @@
 name: Deploy Styled PPT application
-
+# hand trigger #1
 on:
   push:
     branches: [master]
