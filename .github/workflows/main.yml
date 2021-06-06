@@ -1,0 +1,22 @@
+name: Deploy Styled PPT application
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Vue app
+        uses: appleboy/ssh-actions@v0.1.4
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.SSH_USERNAME}}
+          password: ${{secrets.SSH_PASSWORD}}
+          script: |
+            cd ~/onepiece
+            git clone https://github.com/leonmin/zoro.git zoro
+            cd zoro
+            npm install
+            npm run build
