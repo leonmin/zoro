@@ -16,7 +16,8 @@ jobs:
           password: ${{secrets.SSH_PASSWORD}}
           script: |
             cd ~/onepiece
-            git clone https://github.com/leonmin/zoro.git zoro
+            rm -rf zoro
+            git clone git@github.com:leonmin/zoro.git zoro
             cd zoro
             npm install
             npm run build
