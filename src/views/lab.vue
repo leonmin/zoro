@@ -1,7 +1,7 @@
 <template>
   <column :flex="1" main="flex-start">
     <row>
-      <btn type="warning"> 按钮1 </btn>
+      <btn type="warning"> 按钮2+ </btn>
     </row>
   </column>
 </template>
